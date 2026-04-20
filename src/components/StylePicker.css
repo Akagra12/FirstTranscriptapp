@@ -1,0 +1,144 @@
+/* StylePicker.css — Styles for source type & summary style pickers */
+
+/* Wrapper for both sections */
+.picker-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ── Source Type Grid ── */
+.source-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* Individual source card */
+.source-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px 10px;
+  background-color: #13151a;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #aaa;
+}
+
+.source-card:hover {
+  border-color: rgba(124,110,245,0.35);
+  background-color: rgba(124,110,245,0.04);
+  color: #ddd;
+}
+
+.source-card.selected {
+  border-color: rgba(124,110,245,0.6);
+  background-color: rgba(124,110,245,0.1);
+  color: #f0f0f0;
+  box-shadow: 0 0 12px rgba(124,110,245,0.15);
+}
+
+.source-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.source-name {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.source-desc {
+  font-size: 10px;
+  color: #555;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.source-card.selected .source-desc {
+  color: #888;
+}
+
+/* Small label between the two sections */
+.picker-label {
+  font-size: 12px;
+  color: #555;
+  margin: 8px 0 10px 0;
+}
+
+/* ── Summary Style Grid ── */
+.style-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+/* Individual style card */
+.style-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 8px 12px;
+  background-color: #13151a;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #aaa;
+}
+
+.style-card:hover {
+  border-color: rgba(124,110,245,0.35);
+  background-color: rgba(124,110,245,0.04);
+  color: #ddd;
+}
+
+.style-card.selected {
+  border-color: rgba(124,110,245,0.6);
+  background-color: rgba(124,110,245,0.1);
+  color: #f0f0f0;
+  box-shadow: 0 0 12px rgba(124,110,245,0.15);
+}
+
+.style-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.style-name {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.style-desc {
+  font-size: 10px;
+  color: #555;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.style-card.selected .style-desc {
+  color: #888;
+}
+
+/* ── Responsive: smaller screens ── */
+@media (max-width: 600px) {
+  .source-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .style-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .source-desc,
+  .style-desc {
+    display: none;
+  }
+}

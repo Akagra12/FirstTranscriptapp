@@ -1,0 +1,14 @@
+/* index.css — Global resets only */
+/* All design tokens and theming live in App.css */
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

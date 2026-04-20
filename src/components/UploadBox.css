@@ -1,0 +1,129 @@
+/* UploadBox.css — Styles for the file upload area */
+
+/* The dashed upload area */
+.upload-box {
+  border: 2px dashed rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 36px 24px;
+  text-align: center;
+  cursor: pointer;
+  background-color: #13151a;
+  transition: all 0.2s;
+}
+
+/* Hover effect — purple glow */
+.upload-box:hover {
+  border-color: rgba(124,110,245,0.5);
+  background-color: rgba(124,110,245,0.04);
+}
+
+/* When a file is selected — solid purple border */
+.upload-box.has-file {
+  border-style: solid;
+  border-color: rgba(124,110,245,0.4);
+  background-color: rgba(124,110,245,0.06);
+  cursor: default;
+}
+
+/* Content when no file selected */
+.upload-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Purple circle with upload arrow */
+.upload-icon-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: rgba(124,110,245,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.upload-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ccc;
+}
+
+.upload-or {
+  font-size: 13px;
+  color: #555;
+}
+
+/* Purple "click to browse" text */
+.upload-or span {
+  color: #7c6ef5;
+  font-weight: 600;
+}
+
+/* Small pill showing supported formats */
+.upload-formats {
+  font-size: 11px;
+  color: #444;
+  background-color: rgba(255,255,255,0.04);
+  padding: 4px 14px;
+  border-radius: 100px;
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+}
+
+/* Row shown when file is selected */
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+}
+
+.file-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.file-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+}
+
+/* File name — cuts off if too long */
+.file-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f0f0f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* File size in purple */
+.file-size {
+  font-size: 12px;
+  color: #7c6ef5;
+}
+
+/* Red remove button */
+.remove-btn {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #f87171;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.remove-btn:hover {
+  background: rgba(239,68,68,0.2);
+}

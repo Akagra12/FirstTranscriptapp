@@ -1,0 +1,273 @@
+/* ResultCard.css — Styles for the AI result card + markdown rendering */
+
+/* ── Card container ── */
+.result-card {
+  margin-top: 28px;
+  background-color: #13151a;
+  border: 1px solid rgba(124,110,245,0.25);
+  border-radius: 16px;
+  padding: 22px;
+  animation: fadeUp 0.35s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* ── Header: title + action buttons ── */
+.result-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.result-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.result-icon {
+  font-size: 28px;
+}
+
+.result-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f0f0f0;
+  margin-bottom: 4px;
+}
+
+
+/* ── Action buttons ── */
+.result-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  background-color: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #999;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.action-btn:hover {
+  color: #f0f0f0;
+  border-color: rgba(255,255,255,0.2);
+  background-color: rgba(255,255,255,0.08);
+}
+
+
+/* ── Divider ── */
+.result-divider {
+  height: 1px;
+  background-color: rgba(255,255,255,0.06);
+  margin: 16px 0;
+}
+
+
+/* ════════════════════════════════════════════════════ */
+/* ── Markdown content styles ──                       */
+/* ════════════════════════════════════════════════════ */
+
+.markdown-content {
+  font-size: 14px;
+  line-height: 1.75;
+  color: #ccc;
+}
+
+/* Headings */
+.markdown-content h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #f0f0f0;
+  margin: 24px 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.markdown-content h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #e0e0e0;
+  margin: 20px 0 10px 0;
+}
+
+.markdown-content h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #d0d0d0;
+  margin: 16px 0 8px 0;
+}
+
+.markdown-content h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #c0c0c0;
+  margin: 12px 0 6px 0;
+}
+
+/* Paragraphs */
+.markdown-content p {
+  margin: 8px 0;
+}
+
+/* Bold and italic */
+.markdown-content strong {
+  color: #f0f0f0;
+  font-weight: 600;
+}
+
+.markdown-content em {
+  color: #a78bfa;
+  font-style: italic;
+}
+
+/* Lists */
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.markdown-content li {
+  margin: 4px 0;
+}
+
+.markdown-content li::marker {
+  color: #7c6ef5;
+}
+
+/* Links */
+.markdown-content a {
+  color: #7c6ef5;
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+  color: #a78bfa;
+}
+
+/* Blockquotes */
+.markdown-content blockquote {
+  border-left: 3px solid #7c6ef5;
+  padding: 8px 16px;
+  margin: 12px 0;
+  background-color: rgba(124,110,245,0.06);
+  border-radius: 0 8px 8px 0;
+  color: #bbb;
+}
+
+.markdown-content blockquote p {
+  margin: 4px 0;
+}
+
+/* Code — inline */
+.markdown-content code {
+  background-color: rgba(255,255,255,0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  color: #c084fc;
+}
+
+/* Code — blocks */
+.markdown-content pre {
+  background-color: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 12px 0;
+  overflow-x: auto;
+}
+
+.markdown-content pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #ccc;
+}
+
+/* Tables */
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 13px;
+}
+
+.markdown-content th {
+  background-color: rgba(124,110,245,0.1);
+  color: #c084fc;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid rgba(124,110,245,0.2);
+}
+
+.markdown-content td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: #ccc;
+}
+
+.markdown-content tr:hover td {
+  background-color: rgba(255,255,255,0.02);
+}
+
+/* Horizontal rules */
+.markdown-content hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124,110,245,0.3), transparent);
+  margin: 20px 0;
+}
+
+/* Images */
+.markdown-content img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .result-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .result-actions {
+    width: 100%;
+  }
+  .action-btn {
+    flex: 1;
+    text-align: center;
+  }
+  .markdown-content table {
+    font-size: 11px;
+  }
+  .markdown-content th,
+  .markdown-content td {
+    padding: 6px 8px;
+  }
+}

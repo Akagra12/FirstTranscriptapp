@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Backend database & uploads
+backend/meetingai.db
+backend/meetingai.db-shm
+backend/meetingai.db-wal
+backend/uploads/
+
+# Environment
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
