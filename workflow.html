@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MeetingAI Workflow</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0e14;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+    min-height: 100vh;
+  }
+
+  h1 {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    color: #666;
+    font-size: 12px;
+    margin-bottom: 40px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    max-width: 560px;
+  }
+
+  /* ── Nodes ── */
+  .node {
+    width: 100%;
+    border-radius: 14px;
+    padding: 16px 24px;
+    text-align: center;
+    position: relative;
+  }
+
+  .node-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    opacity: 0.7;
+  }
+
+  .node-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .node-desc {
+    font-size: 12px;
+    opacity: 0.75;
+    line-height: 1.5;
+  }
+
+  /* Node colours */
+  .user    { background: linear-gradient(135deg,#1e2a4a,#243057); border: 1px solid #3b4f8a; color:#a0baff; }
+  .upload  { background: linear-gradient(135deg,#1a2838,#1e3040); border: 1px solid #2e4a65; color:#78c7f7; }
+  .whisper { background: linear-gradient(135deg,#1e2b38,#1a3040); border: 1px solid #2e6090; color:#56b4e9; }
+  .models  { background: linear-gradient(135deg,#1f1a38,#241a42); border: 1px solid #4a3580; color:#c0a0ff; }
+  .merge   { background: linear-gradient(135deg,#2a1a3a,#381a50); border: 1px solid #6a3090; color:#d580ff; }
+  .result  { background: linear-gradient(135deg,#1a3028,#1a3c28); border: 1px solid #2a6040; color:#68e0a0; }
+  .save    { background: linear-gradient(135deg,#2a2216,#38281a); border: 1px solid #705030; color:#f0a855; }
+  .history { background: linear-gradient(135deg,#281e10,#341e10); border: 1px solid #604020; color:#e08840; }
+
+  /* Arrow */
+  .arrow {
+    width: 2px;
+    height: 28px;
+    background: linear-gradient(to bottom, #444, #333);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .arrow::after {
+    content: '▼';
+    color: #555;
+    font-size: 10px;
+    position: absolute;
+    bottom: -2px;
+  }
+
+  /* Parallel block */
+  .parallel-wrapper {
+    width: 100%;
+  }
+
+  .parallel-label {
+    text-align: center;
+    color: #888;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .parallel-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .parallel-node {
+    flex: 1;
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+    border: 1px solid #4a3580;
+    background: linear-gradient(135deg,#1f1a38,#241a42);
+    color: #c0a0ff;
+  }
+
+  .parallel-node .p-icon { font-size: 20px; margin-bottom: 6px; }
+  .parallel-node .p-name { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .parallel-node .p-role { font-size: 10px; opacity: 0.6; margin-bottom: 3px; }
+  .parallel-node .p-tag  { font-size: 10px; color: #9070dd; font-weight: 600; }
+
+  /* Connectors for parallel */
+  .parallel-connectors {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+  .pc { flex: 1; display: flex; flex-direction: column; align-items: center; }
+  .pc-line { width: 2px; height: 24px; background: #333; }
+  .pc-arrow { color: #555; font-size: 9px; margin-top: -4px; }
+
+  /* Condition diamond */
+  .diamond-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .diamond {
+    width: 180px;
+    height: 60px;
+    background: linear-gradient(135deg,#2a2030,#201828);
+    border: 1px solid #553070;
+    transform: skewX(-20deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
+  .diamond span {
+    transform: skewX(20deg);
+    color: #cc88ff;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .diamond-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 280px;
+    margin-top: 4px;
+  }
+  .dl { font-size: 10px; color: #888; font-style: italic; }
+
+  /* Section divider */
+  .section-divider {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 6px 0;
+  }
+  .sd-line { flex: 1; height: 1px; background: #222; }
+  .sd-text { color: #444; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; white-space: nowrap; }
+
+  /* Auth side note */
+  .auth-note {
+    background: rgba(255,165,0,0.06);
+    border: 1px solid rgba(255,165,0,0.2);
+    border-radius: 10px;
+    padding: 10px 16px;
+    width: 100%;
+    margin-top: 6px;
+  }
+  .auth-note-title { color: #f0a855; font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+  .auth-note-desc  { color: #888; font-size: 11px; line-height: 1.5; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 36px;
+    padding: 16px 24px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid #222;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 560px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #888; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+</style>
+</head>
+<body>
+
+<h1>🎙 MeetingAI — System Workflow</h1>
+<p class="subtitle">Complete end-to-end data flow</p>
+
+<div class="flow">
+
+  <!-- USER -->
+  <div class="node user">
+    <div class="node-label">Start</div>
+    <div class="node-title">👤 User Opens App</div>
+    <div class="node-desc">Opens <strong>meetingai-2bqy.onrender.com</strong> in any browser</div>
+  </div>
+
+  <div class="arrow"></div>
+
+  <!-- AUTH -->
+  <div class="node save">
+    <div class="node-label">Authentication</div>
+    <div class="node-title">🔐 Login / Signup</div>
+    <div class="node-desc">Email + Password → JWT Token issued (7 days)<br>Groq API Key saved encrypted (AES-256-CBC) in SQLite</div>
+  </div>
+
+  <div class="arrow"></div>
+
+  <!-- UPLOAD -->
+  <div class="node upload">
+    <div class="node-label">Step 1</div>
+    <div class="node-title">📁 Upload Audio File</div>
+    <div class="node-desc">Supports mp3 · wav · m4a · ogg · up to 200 MB</div>
+  </div>
+
+  <div class="arrow"></div>
+
+  <!-- COMPRESS CHECK -->
+  <div class="diamond-wrap">
+    <div class="diamond"><span>File &gt; 25 MB?</span></div>
+    <div class="diamond-labels">
+      <span class="dl">YES → Compress</span>
+      <span class="dl">NO → Skip</span>
+    </div>
+  </div>
+
+  <div class="arrow"></div>
+
+  <!-- WHISPER -->
+  <div class="node whisper">
+    <div class="node-label">Step 2 — Transcription</div>
+    <div class="node-title">🎤 Groq Whisper API</div>
+    <div class="node-desc">Model: <strong>whisper-large-v3-turbo</strong><br>Returns: full transcript · language · audio duration</div>
+  </div>
+
+  <div class="arrow"></div>
+
+  <!-- STYLE SELECT -->
+  <div class="node user">
+    <div class="node-label">User Choice</div>
+    <div class="node-title">🎛 Select Style + Source Type</div>
+    <div class="node-desc">15 Summary Styles  ×  10 Source Types<br>(e.g. Meeting + Action Items)</div>
+  </div>
+
+  <div class="arrow"></div>
+
+  <!-- PARALLEL -->
+  <div class="parallel-wrapper">
+    <div class="parallel-label">⚡ Step 3 — 3 Models Run Simultaneously (Promise.all)</div>
+    <div class="parallel-row">
+      <div class="parallel-node">
+        <div class="p-icon">🔵</div>
+        <div class="p-name">Scout-17B</div>
+        <div class="p-role">Full transcript</div>
+        <div class="p-role">User's style</div>
+        <div class="p-tag">30K TPM · Primary</div>
+      </div>
+      <div class="parallel-node">
+        <div class="p-icon">🟡</div>
+        <div class="p-name">8B-Instant</div>
+        <div class="p-role">Full / First half</div>
+        <div class="p-role">Fast coverage</div>
+        <div class="p-tag">6K TPM · Speed</div>
+      </div>
+      <div class="parallel-node">
+        <div class="p-icon">🟣</div>
+        <div class="p-name">70B-Versatile</div>
+        <div class="p-role">Full / Second half</div>
+        <div class="p-role">Capture-all prompt</div>
+        <div class="p-tag">12K TPM · Quality</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- parallel arrows converging -->
+  <div class="parallel-connectors">
+    <div class="pc"><div class="pc-line"></div><div class="pc-arrow">▼</div></div>
+    <div class="pc"><div class="pc-line"></div><div class="pc-arrow">▼</div></div>
+    <div class="pc"><div class="pc-line"></div><div class="pc-arrow">▼</div></div>
+  </div>
+
+  <!-- MERGE -->
+  <div class="node merge">
+    <div class="node-label">Step 4 — Merge</div>
+    <div class="node-title">🔗 Scout-17B Merges All Three</div>
+    <div class="node-desc">Compares all 3 summaries · resolves contradictions<br>Produces one final, complete, styled summary</div>
+  </div>
+
+  <div class="arrow"></div>
+
+  <!-- RESULT -->
+  <div class="node result">
+    <div class="node-label">Output</div>
+    <div class="node-title">✅ Final Summary Displayed</div>
+    <div class="node-desc">Rendered as Markdown · Copy button · Download .md<br>Timing shown: step 1 + step 2 + total</div>
+  </div>
+
+  <div class="arrow"></div>
+
+  <!-- SAVE -->
+  <div class="node history">
+    <div class="node-label">Step 5 — Persistence</div>
+    <div class="node-title">💾 Saved to Summary History</div>
+    <div class="node-desc">Stored in SQLite linked to user account<br>Reload any past summary from History panel</div>
+  </div>
+
+  <div class="arrow"></div>
+
+  <!-- DONE -->
+  <div class="node user" style="background: linear-gradient(135deg,#1a301a,#1e3c1e); border-color:#3a7a3a; color:#80e880;">
+    <div class="node-label">End</div>
+    <div class="node-title">🎉 User Done</div>
+    <div class="node-desc">Use the live URL anytime · History auto-loads on login<br>Next upload → same flow restarts from Step 1</div>
+  </div>
+
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#3b4f8a"></div> User Action</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2e6090"></div> Transcription</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#4a3580"></div> AI Models (Parallel)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#6a3090"></div> Merge Step</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2a6040"></div> Result / Output</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#604020"></div> Auth / Database</div>
+</div>
+
+</body>
+</html>
