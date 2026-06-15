@@ -130,6 +130,46 @@ body {
   color: #a78bfa;
 }
 
+.setup-instructions {
+  background-color: rgba(255, 255, 255, 0.015);
+  border-left: 3px solid #7c6ef5;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setup-step {
+  font-size: 13px;
+  color: #a0aec0;
+  line-height: 1.6;
+}
+
+.setup-step strong {
+  color: #7c6ef5;
+}
+
+.setup-step code {
+  background-color: rgba(255, 255, 255, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #e2e8f0;
+}
+
+.setup-link {
+  color: #7c6ef5;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.setup-link:hover {
+  text-decoration: underline;
+  color: #a78bfa;
+}
+
 .setup-input-row {
   display: flex;
   gap: 10px;

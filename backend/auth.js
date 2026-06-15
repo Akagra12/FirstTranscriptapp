@@ -37,7 +37,7 @@ function generateToken(user) {
 
 
 // ── Middleware: verify JWT ──
-function verifyToken(req, res, next) {
+async function verifyToken(req, res, next) {
   const authHeader = req.headers["authorization"]
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "No token provided" })
@@ -46,6 +46,13 @@ function verifyToken(req, res, next) {
   const token = authHeader.split(" ")[1]
   try {
     const decoded = jwt.verify(token, JWT_SECRET)
+    
+    // Verify user exists in the DB (prevents issues if DB is wiped)
+    const user = await findUserById(decoded.id)
+    if (!user) {
+      return res.status(401).json({ error: "User account no longer exists. Please sign up again." })
+    }
+
     req.user = decoded  // { id, email }
     next()
   } catch (err) {
@@ -55,19 +62,21 @@ function verifyToken(req, res, next) {
 
 
 // ── Middleware: optional auth (supports both JWT and x-groq-key) ──
-function optionalAuth(req, res, next) {
+async function optionalAuth(req, res, next) {
   const authHeader = req.headers["authorization"]
 
   if (authHeader && authHeader.startsWith("Bearer ")) {
     try {
       const token = authHeader.split(" ")[1]
       const decoded = jwt.verify(token, JWT_SECRET)
-      req.user = decoded
 
       // Load user's encrypted API key from DB
-      const user = findUserById.get(decoded.id)
-      if (user && user.groq_key_enc) {
-        req.groqKey = decrypt(user.groq_key_enc)
+      const user = await findUserById(decoded.id)
+      if (user) {
+        req.user = decoded
+        if (user.groq_key_enc) {
+          req.groqKey = decrypt(user.groq_key_enc)
+        }
       }
     } catch (_) {
       // Token invalid — fall through to header check
@@ -98,15 +107,15 @@ router.post("/auth/signup", async (req, res) => {
     return res.status(400).json({ error: "Password must be at least 6 characters" })
   }
 
-  // Check if email already exists
-  const existing = findUserByEmail.get(email.toLowerCase().trim())
-  if (existing) {
-    return res.status(409).json({ error: "Email already registered" })
-  }
-
   try {
+    // Check if email already exists
+    const existing = await findUserByEmail(email.toLowerCase().trim())
+    if (existing) {
+      return res.status(409).json({ error: "Email already registered" })
+    }
+
     const hash = await bcrypt.hash(password, 10)
-    const result = createUser.run(email.toLowerCase().trim(), hash)
+    const result = await createUser(email.toLowerCase().trim(), hash)
 
     const user = { id: result.lastInsertRowid, email: email.toLowerCase().trim() }
     const token = generateToken(user)
@@ -132,27 +141,32 @@ router.post("/auth/login", async (req, res) => {
     return res.status(400).json({ error: "Email and password required" })
   }
 
-  const user = findUserByEmail.get(email.toLowerCase().trim())
-  if (!user) {
-    return res.status(401).json({ error: "Invalid email or password" })
-  }
-
-  const valid = await bcrypt.compare(password, user.password_hash)
-  if (!valid) {
-    return res.status(401).json({ error: "Invalid email or password" })
-  }
-
-  const token = generateToken(user)
-  console.log(`   🔑 Login: ${user.email}`)
-
-  return res.json({
-    token,
-    user: {
-      id: user.id,
-      email: user.email,
-      hasApiKey: !!user.groq_key_enc
+  try {
+    const user = await findUserByEmail(email.toLowerCase().trim())
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" })
     }
-  })
+
+    const valid = await bcrypt.compare(password, user.password_hash)
+    if (!valid) {
+      return res.status(401).json({ error: "Invalid email or password" })
+    }
+
+    const token = generateToken(user)
+    console.log(`   🔑 Login: ${user.email}`)
+
+    return res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        hasApiKey: !!user.groq_key_enc
+      }
+    })
+  } catch (err) {
+    console.error(`   ❌ Login error: ${err.message}`)
+    return res.status(500).json({ error: "Authentication failed" })
+  }
 })
 
 
@@ -161,7 +175,7 @@ router.post("/auth/login", async (req, res) => {
 // ══════════════════════════════════════════════════
 
 // POST /user/api-key — save groq key (encrypted)
-router.post("/user/api-key", verifyToken, (req, res) => {
+router.post("/user/api-key", verifyToken, async (req, res) => {
   const { groqKey } = req.body
   if (!groqKey || !groqKey.trim()) {
     return res.status(400).json({ error: "API key required" })
@@ -169,7 +183,7 @@ router.post("/user/api-key", verifyToken, (req, res) => {
 
   try {
     const encrypted = encrypt(groqKey.trim())
-    saveApiKey.run(encrypted, req.user.id)
+    await saveApiKey(encrypted, req.user.id)
     console.log(`   🔐 API key saved for user ${req.user.email}`)
     return res.json({ success: true })
   } catch (err) {
@@ -178,15 +192,23 @@ router.post("/user/api-key", verifyToken, (req, res) => {
 })
 
 // GET /user/api-key/status — check if key exists
-router.get("/user/api-key/status", verifyToken, (req, res) => {
-  const user = findUserById.get(req.user.id)
-  return res.json({ hasApiKey: !!(user && user.groq_key_enc) })
+router.get("/user/api-key/status", verifyToken, async (req, res) => {
+  try {
+    const user = await findUserById(req.user.id)
+    return res.json({ hasApiKey: !!(user && user.groq_key_enc) })
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch API key status" })
+  }
 })
 
 // DELETE /user/api-key — remove saved key
-router.delete("/user/api-key", verifyToken, (req, res) => {
-  deleteApiKey.run(req.user.id)
-  return res.json({ success: true })
+router.delete("/user/api-key", verifyToken, async (req, res) => {
+  try {
+    await deleteApiKey(req.user.id)
+    return res.json({ success: true })
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to delete API key" })
+  }
 })
 
 
@@ -195,22 +217,34 @@ router.delete("/user/api-key", verifyToken, (req, res) => {
 // ══════════════════════════════════════════════════
 
 // GET /user/summaries — list recent summaries
-router.get("/user/summaries", verifyToken, (req, res) => {
-  const summaries = getUserSummaries.all(req.user.id)
-  return res.json({ summaries })
+router.get("/user/summaries", verifyToken, async (req, res) => {
+  try {
+    const summaries = await getUserSummaries(req.user.id)
+    return res.json({ summaries })
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch summaries" })
+  }
 })
 
 // GET /user/summaries/:id — get full summary
-router.get("/user/summaries/:id", verifyToken, (req, res) => {
-  const summary = getSummaryById.get(req.params.id, req.user.id)
-  if (!summary) return res.status(404).json({ error: "Summary not found" })
-  return res.json({ summary })
+router.get("/user/summaries/:id", verifyToken, async (req, res) => {
+  try {
+    const summary = await getSummaryById(req.params.id, req.user.id)
+    if (!summary) return res.status(404).json({ error: "Summary not found" })
+    return res.json({ summary })
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch summary" })
+  }
 })
 
 // DELETE /user/summaries/:id — delete a summary
-router.delete("/user/summaries/:id", verifyToken, (req, res) => {
-  deleteSummary.run(req.params.id, req.user.id)
-  return res.json({ success: true })
+router.delete("/user/summaries/:id", verifyToken, async (req, res) => {
+  try {
+    await deleteSummary(req.params.id, req.user.id)
+    return res.json({ success: true })
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to delete summary" })
+  }
 })
 
 

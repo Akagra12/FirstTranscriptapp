@@ -17,7 +17,7 @@ const fs           = require("fs")
 const { execSync } = require("child_process")
 const { SOURCE, STYLE_PROMPTS, buildCaptureAllPrompt, buildMergePrompt } = require("./prompts")
 const { router: authRouter, optionalAuth } = require("./auth")
-const { insertSummary } = require("./db")
+const { initDb, insertSummary } = require("./db")
 
 const app  = express()
 const PORT = 3001
@@ -334,7 +334,7 @@ app.post("/groq/analyze", optionalAuth, async (req, res) => {
       try {
         const title = finalSummary.split("\n").find(l => l.trim()) || "Untitled"
         const preview = transcript.substring(0, 200)
-        insertSummary.run(
+        await insertSummary(
           req.user.id, title.replace(/^#+\s*/, "").substring(0, 100),
           preview, finalSummary, style || "detailed",
           sourceType || "meeting", modeStr, totalTime + "s"
@@ -392,19 +392,24 @@ if (fs.existsSync(distPath)) {
 // START SERVER
 // ══════════════════════════════════════════════════════════════
 const LISTEN_PORT = process.env.PORT || PORT
-app.listen(LISTEN_PORT, "0.0.0.0", () => {
-  console.log(`\n╔═══════════════════════════════════════════════════════╗`)
-  console.log(`║  ✅ MeetingAI · 3-Model Parallel · Port ${LISTEN_PORT}          ║`)
-  console.log(`╠═══════════════════════════════════════════════════════╣`)
-  console.log(`║  /groq/transcribe → Whisper 🎤                       ║`)
-  console.log(`║  /groq/analyze    → 3-Model Analysis 🧠              ║`)
-  console.log(`╠═══════════════════════════════════════════════════════╣`)
-  console.log(`║  Model A: ${tag(MODEL_A).padEnd(12)} (30K TPM) ⭐ primary     ║`)
-  console.log(`║  Model B: ${tag(MODEL_B).padEnd(12)} (6K TPM)  🚀 fast        ║`)
-  console.log(`║  Model C: ${tag(MODEL_C).padEnd(12)} (12K TPM) 💎 quality     ║`)
-  console.log(`╠═══════════════════════════════════════════════════════╣`)
-  console.log(`║  MEDIUM: A+B+C get full text → merge best of 3      ║`)
-  console.log(`║  LONG:   A=full, B=half1, C=half2 → merge           ║`)
-  console.log(`║  Just 2 steps! No waiting! Pure parallel!            ║`)
-  console.log(`╚═══════════════════════════════════════════════════════╝\n`)
+initDb().then(() => {
+  app.listen(LISTEN_PORT, "0.0.0.0", () => {
+    console.log(`\n╔═══════════════════════════════════════════════════════╗`)
+    console.log(`║  ✅ MeetingAI · 3-Model Parallel · Port ${LISTEN_PORT}          ║`)
+    console.log(`╠═══════════════════════════════════════════════════════╣`)
+    console.log(`║  /groq/transcribe → Whisper 🎤                       ║`)
+    console.log(`║  /groq/analyze    → 3-Model Analysis 🧠              ║`)
+    console.log(`╠═══════════════════════════════════════════════════════╣`)
+    console.log(`║  Model A: ${tag(MODEL_A).padEnd(12)} (30K TPM) ⭐ primary     ║`)
+    console.log(`║  Model B: ${tag(MODEL_B).padEnd(12)} (6K TPM)  🚀 fast        ║`)
+    console.log(`║  Model C: ${tag(MODEL_C).padEnd(12)} (12K TPM) 💎 quality     ║`)
+    console.log(`╠═══════════════════════════════════════════════════════╣`)
+    console.log(`║  MEDIUM: A+B+C get full text → merge best of 3      ║`)
+    console.log(`║  LONG:   A=full, B=half1, C=half2 → merge           ║`)
+    console.log(`║  Just 2 steps! No waiting! Pure parallel!            ║`)
+    console.log(`╚═══════════════════════════════════════════════════════╝\n`)
+  })
+}).catch(err => {
+  console.error("❌ Failed to initialize database:", err)
+  process.exit(1)
 })

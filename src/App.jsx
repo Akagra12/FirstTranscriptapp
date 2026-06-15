@@ -325,12 +325,19 @@ function App() {
           <div className="setup-card">
             <h3 className="setup-title">🔑 Set Up Your Groq API Key</h3>
             <p className="setup-desc">
-              Get a free key from{" "}
-              <a href="https://console.groq.com" target="_blank" rel="noopener noreferrer">
-                console.groq.com
-              </a>
-              . Your key is encrypted and stored securely — you only need to enter it once.
+              To transcribe and analyze meetings, you need a free Groq API key.
             </p>
+            <div className="setup-instructions">
+              <p className="setup-step">
+                <strong>Step 1:</strong> Go to the official <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" className="setup-link">Groq Console</a> and sign up or sign in.
+              </p>
+              <p className="setup-step">
+                <strong>Step 2:</strong> Click the <strong>"Create API Key"</strong> button, give it a name (like <em>MeetingAI</em>), and copy the key (starts with <code>gsk_</code>).
+              </p>
+              <p className="setup-step">
+                <strong>Step 3:</strong> Paste your copied key below and save. It will be encrypted securely and saved so you don't have to enter it again.
+              </p>
+            </div>
             <div className="setup-input-row">
               <input
                 className="setup-input"
