@@ -328,15 +328,24 @@ function App() {
               To transcribe and analyze meetings, you need a free Groq API key.
             </p>
             <div className="setup-instructions">
-              <p className="setup-step">
-                <strong>Step 1:</strong> Go to the official <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" className="setup-link">Groq Console</a> and sign up or sign in.
-              </p>
-              <p className="setup-step">
-                <strong>Step 2:</strong> Click the <strong>"Create API Key"</strong> button, give it a name (like <em>MeetingAI</em>), and copy the key (starts with <code>gsk_</code>).
-              </p>
-              <p className="setup-step">
-                <strong>Step 3:</strong> Paste your copied key below and save. It will be encrypted securely and saved so you don't have to enter it again.
-              </p>
+              <div className="setup-step">
+                <span className="step-num">1</span>
+                <p>
+                  Click this link to open the <strong><a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" className="setup-link">Groq Console</a></strong> (it's completely free). Sign in or create a quick account.
+                </p>
+              </div>
+              <div className="setup-step">
+                <span className="step-num">2</span>
+                <p>
+                  Click the <strong>"Create API Key"</strong> button, name it (like <em>MeetingAI</em>), and copy the key (starts with <code>gsk_</code>).
+                </p>
+              </div>
+              <div className="setup-step">
+                <span className="step-num">3</span>
+                <p>
+                  Paste your copied key in the input box below and click <strong>"Save Key"</strong>. That's it!
+                </p>
+              </div>
             </div>
             <div className="setup-input-row">
               <input
